@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-const yargs = require('yargs');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
 const chalk = require('chalk');
 const figlet = require('figlet');
 const { initDB } = require('./db/connection');
@@ -63,62 +64,62 @@ const runInteractiveMode = async () => {
         const userData = await createUserPrompt();
         if (userData.confirm) {
           const userId = await createUser(userData.name, userData.username, userData.email);
-          console.log(chalk.green('\nUser created successfully!'));
-          console.log(chalk.white(`User ID: ${userId}`));
-          console.log(chalk.green(`Name: ${userData.name}`));
-          console.log(chalk.blue(`Username: ${userData.username}`));
-          console.log(chalk.magenta(`Email: ${userData.email}\n`));
+          console.log(chalk.green('\n✅ User created successfully!'));
+          console.log(chalk.white(`🆔 User ID: ${userId}`));
+          console.log(chalk.green(`👤 Name: ${userData.name}`));
+          console.log(chalk.blue(`🔖 Username: ${userData.username}`));
+          console.log(chalk.magenta(`📧 Email: ${userData.email}\n`));
         } else {
-          console.log(chalk.yellow('\nCreation cancelled\n'));
+          console.log(chalk.yellow('\n❌ Creation cancelled\n'));
         }
         break;
         
       case 'list':
-        console.log(chalk.cyan('\nFetching users...\n'));
+        console.log(chalk.cyan('\n📋 Fetching users...\n'));
         const users = await getAllUsers();
         displayUsers(users);
         break;
         
       case 'search':
-        console.log(chalk.yellow('\nSearch users...\n'));
+        console.log(chalk.yellow('\n🔍 Search users...\n'));
         const keyword = await searchUserPrompt();
-        console.log(chalk.cyan(`\nSearching for "${keyword}"...\n`));
+        console.log(chalk.cyan(`\n🔎 Searching for "${keyword}"...\n`));
         const searchResults = await searchUsers(keyword);
-        displayUsers(searchResults, `Search Results for "${keyword}"`);
+        displayUsers(searchResults, `📌 Search Results for "${keyword}"`);
         break;
         
       case 'update':
-        console.log(chalk.magenta('\nUpdating user...\n'));
+        console.log(chalk.magenta('\n✏️ Updating user...\n'));
         const updateData = await updateUserPrompt();
         if (updateData) {
           const updated = await updateUser(updateData.userId, updateData.updates);
           if (updated) {
-            console.log(chalk.green('\nUser updated successfully!\n'));
+            console.log(chalk.green('\n✅ User updated successfully!\n'));
           } else {
-            console.log(chalk.red('\nFailed to update user\n'));
+            console.log(chalk.red('\n❌ Failed to update user\n'));
           }
         } else {
-          console.log(chalk.yellow('\nUpdate cancelled\n'));
+          console.log(chalk.yellow('\n❌ Update cancelled\n'));
         }
         break;
         
       case 'delete':
-        console.log(chalk.red('\nDelete user...\n'));
+        console.log(chalk.red('\n🗑️ Delete user...\n'));
         const deleteData = await deleteUserPrompt();
         if (deleteData) {
           const deleted = await deleteUser(deleteData.identifier, deleteData.type);
           if (deleted) {
-            console.log(chalk.green('\nUser deleted successfully!\n'));
+            console.log(chalk.green('\n✅ User deleted successfully!\n'));
           } else {
-            console.log(chalk.red('\nUser not found\n'));
+            console.log(chalk.red('\n❌ User not found\n'));
           }
         } else {
-          console.log(chalk.yellow('\nDeletion cancelled\n'));
+          console.log(chalk.yellow('\n❌ Deletion cancelled\n'));
         }
         break;
         
       case 'exit':
-        console.log(chalk.gray('\nGoodbye!\n'));
+        console.log(chalk.gray('\n👋 Goodbye!\n'));
         running = false;
         break;
     }
@@ -133,7 +134,7 @@ const main = async () => {
   await initDB();
   showBanner();
   
-  const argv = yargs
+  const argv = yargs(hideBin(process.argv))
     .scriptName('userforge')
     .usage(chalk.cyan('Usage: $0 [options]'))
     .option('interactive', {
@@ -176,8 +177,8 @@ const main = async () => {
   try {
     if (argv.create && argv.name && argv.username && argv.email) {
       const userId = await createUser(argv.name, argv.username, argv.email);
-      console.log(chalk.green('\nUser created successfully!'));
-      console.log(chalk.white(`User ID: ${userId}\n`));
+      console.log(chalk.green('\n✅ User created successfully!'));
+      console.log(chalk.white(`🆔 User ID: ${userId}\n`));
     } else if (argv.list) {
       const users = await getAllUsers();
       displayUsers(users);
@@ -185,11 +186,12 @@ const main = async () => {
       await runInteractiveMode();
     }
   } catch (error) {
-    console.log(chalk.red(`\nError: ${error.message}\n`));
+    console.log(chalk.red(`\n❌ Error: ${error.message}\n`));
     process.exit(1);
   }
 };
 
+// Handle unhandled rejections
 process.on('unhandledRejection', (error) => {
   console.error(chalk.red('Unhandled rejection:', error.message));
   process.exit(1);

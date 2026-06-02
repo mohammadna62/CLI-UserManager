@@ -3,24 +3,24 @@ const { getConnection } = require('../db/connection');
 const checkDuplicate = async (username, email, excludeId = null) => {
   const connection = getConnection();
   
-  let usernameQuery = 'SELECT EXISTS(SELECT 1 FROM users WHERE username = ?) as exists';
-  let emailQuery = 'SELECT EXISTS(SELECT 1 FROM users WHERE email = ?) as exists';
+  let usernameQuery = 'SELECT COUNT(*) as count FROM users WHERE username = ?';
+  let emailQuery = 'SELECT COUNT(*) as count FROM users WHERE email = ?';
   let usernameParams = [username];
   let emailParams = [email];
   
   if (excludeId) {
-    usernameQuery = 'SELECT EXISTS(SELECT 1 FROM users WHERE username = ? AND id != ?) as exists';
-    emailQuery = 'SELECT EXISTS(SELECT 1 FROM users WHERE email = ? AND id != ?) as exists';
+    usernameQuery = 'SELECT COUNT(*) as count FROM users WHERE username = ? AND id != ?';
+    emailQuery = 'SELECT COUNT(*) as count FROM users WHERE email = ? AND id != ?';
     usernameParams = [username, excludeId];
     emailParams = [email, excludeId];
   }
   
-  const [usernameExists] = await connection.execute(usernameQuery, usernameParams);
-  const [emailExists] = await connection.execute(emailQuery, emailParams);
+  const [usernameResult] = await connection.execute(usernameQuery, usernameParams);
+  const [emailResult] = await connection.execute(emailQuery, emailParams);
   
   return {
-    usernameExists: usernameExists[0].exists === 1,
-    emailExists: emailExists[0].exists === 1
+    usernameExists: usernameResult[0].count > 0,
+    emailExists: emailResult[0].count > 0
   };
 };
 
